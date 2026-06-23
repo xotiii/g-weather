@@ -21,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dcchua.gweather.R
+import com.dcchua.gweather.presentation.theme.GWeatherTheme
 
 @ExperimentalMaterial3Api
 @Composable
@@ -34,7 +35,7 @@ fun RegisterScreen(
 				navigationIcon = {
 					IconButton(onClick = onNavigateBack) {
 						Icon(
-							painter = painterResource(R.drawable.ic_home),
+							painter = painterResource(R.drawable.ic_chevron_back_24dp),
 							contentDescription = "Back"
 						)
 					}
@@ -106,7 +107,9 @@ fun RegisterContent(
 @Preview(showBackground = true)
 @Composable
 fun RegisterContentPreview() {
-	RegisterContent(
-		onClickCreateAccount = {},
-	)
+	GWeatherTheme {
+		RegisterContent(
+			onClickCreateAccount = {},
+		)
+	}
 }
