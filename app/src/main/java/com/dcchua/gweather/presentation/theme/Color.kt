@@ -1,4 +1,4 @@
-package com.dcchua.gweather.ui.theme
+package com.dcchua.gweather.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
