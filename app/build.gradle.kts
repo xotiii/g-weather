@@ -69,6 +69,7 @@ dependencies {
 	ksp(libs.dagger.hilt.compiler)
 	testImplementation(libs.dagger.hilt.android.testing)
 	androidTestAnnotationProcessor(libs.dagger.hilt.compiler)
+	implementation(libs.androidx.hilt.navigation.compose)
 
 	// Serialization
 	implementation(libs.kotlin.serialization)
@@ -77,6 +78,10 @@ dependencies {
 	implementation(libs.androidx.room.runtime)
 	implementation(libs.androidx.room.ktx)
 	ksp(libs.androidx.room.compiler)
+
+	// Location
+	implementation(libs.google.android.gms.location)
+	implementation(libs.coroutines.play.services)
 
 	// Test
 	testImplementation(libs.junit)
