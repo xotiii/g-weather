@@ -22,6 +22,7 @@ android {
 		versionName = "1.0"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+		buildConfigField("String", "OPEN_WEATHER_API_KEY", "\"092e8deb1bb230468919314507d9106d\"")
 	}
 
 	buildTypes {
@@ -37,6 +38,14 @@ android {
 	}
 	buildFeatures {
 		compose = true
+		buildConfig = true
+	}
+	testOptions {
+		unitTests {
+			all {
+				it.useJUnitPlatform()
+			}
+		}
 	}
 }
 
@@ -60,7 +69,8 @@ dependencies {
 
 	// Networks
 	implementation(libs.retrofit2.retrofit)
-	implementation(libs.retrofit2.converter.gson)
+	implementation(libs.retrofit2.converter.jackson)
+	implementation(libs.jackson.databind)
 	implementation(libs.okhttp3.okhttp)
 	implementation(libs.okhttp3.logging.interceptor)
 
@@ -84,7 +94,11 @@ dependencies {
 	implementation(libs.coroutines.play.services)
 
 	// Test
-	testImplementation(libs.junit)
+	testImplementation(libs.mockk)
+	testImplementation(libs.junit.jupiter)
+	testImplementation(libs.junit.jupiter.api)
+	testImplementation(libs.kotlinx.coroutines.test)
+	testRuntimeOnly(libs.junit.platform.launcher)
 	androidTestImplementation(platform(libs.androidx.compose.bom))
 	androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 	androidTestImplementation(libs.androidx.espresso.core)

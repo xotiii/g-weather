@@ -2,37 +2,58 @@ package com.dcchua.gweather.current.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dcchua.gweather.current.domain.model.Location
-import com.dcchua.gweather.current.domain.usecase.LocationDataProvider
-import com.dcchua.gweather.current.presentation.state.CurrentWeatherUiState
+import com.dcchua.gweather.current.domain.usecase.CurrentWeatherDataProvider
+import com.dcchua.gweather.util.time.getDurationToNextHour
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class CurrentWeatherViewModel @Inject constructor(
-	private val locationDataProvider: LocationDataProvider,
+	private val currentWeatherDataProvider: CurrentWeatherDataProvider,
+	private val factory: CurrentWeatherUiStateFactory,
 ) : ViewModel() {
 
+	private var getCurrentWeatherJob: Job? = null
+	private var synchronizedHourlyCheck: Job? = null
+
+	private val _isDayTime = MutableStateFlow(true)
+	val isDayTime = _isDayTime.asStateFlow()
+
+	val uiStream = combine(
+		currentWeatherDataProvider.dataStream,
+		isDayTime,
+	) { currentWeather, isDayTime ->
+		factory.toUiState(currentWeather = currentWeather, isDayTime = isDayTime)
+	}.distinctUntilChanged()
+
 	init {
-		loadLocation()
+		startSynchronizedHourlyCheck()
+		getCurrentWeather()
 	}
 
-	val uiStream = locationDataProvider.getDataStream().map {
-		when (it) {
-			Location.ErrorData.GPSUnsupported -> CurrentWeatherUiState.ErrorState.GPSUnsupported
-			Location.ErrorData.PermissionRequired -> CurrentWeatherUiState.ErrorState.PermissionRequired
-			is Location.ErrorData.RequiresResolution -> CurrentWeatherUiState.ErrorState.RequiresResolution(it.exception)
-			is Location.ErrorData.Unknown -> CurrentWeatherUiState.ErrorState.Unknown(it.message)
-			is Location.FullData -> CurrentWeatherUiState.SuccessState.DayTime(it.longitude.toString(), it.latitude.toString())
-			Location.NoData -> CurrentWeatherUiState.Loading
+	fun getCurrentWeather() {
+		if (getCurrentWeatherJob?.isActive == true) return
+		getCurrentWeatherJob = viewModelScope.launch {
+			currentWeatherDataProvider.getCurrentWeather()
 		}
 	}
 
-	fun loadLocation() {
-		viewModelScope.launch {
-			locationDataProvider.getLocationData()
+	private fun startSynchronizedHourlyCheck() {
+		if (synchronizedHourlyCheck?.isActive == true) return
+		synchronizedHourlyCheck = viewModelScope.launch {
+			while (true) {
+				val now = LocalDateTime.now()
+				_isDayTime.value = now.hour in 6..17
+				delay(getDurationToNextHour(now = now))
+			}
 		}
 	}
 

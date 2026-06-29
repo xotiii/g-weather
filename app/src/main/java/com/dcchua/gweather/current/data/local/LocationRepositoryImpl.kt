@@ -1,4 +1,4 @@
-package com.dcchua.gweather.current.data
+package com.dcchua.gweather.current.data.local
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import androidx.core.content.ContextCompat
 import com.dcchua.gweather.current.domain.LocationRepository
+import com.dcchua.gweather.current.domain.model.Location
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -20,8 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
-import com.dcchua.gweather.current.domain.model.Location as LocationModel
-
 
 class LocationRepositoryImpl @Inject constructor(
 	@param:ApplicationContext private val context: Context,
@@ -32,27 +31,27 @@ class LocationRepositoryImpl @Inject constructor(
 	private val settingsClient = LocationServices.getSettingsClient(context)
 	private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-	private val _locationDataStream = MutableStateFlow<LocationModel>(LocationModel.NoData)
+	private val _locationDataStream = MutableStateFlow<Location>(Location.NoData)
 	override val locationDataStream = _locationDataStream.asStateFlow()
 
 	override suspend fun fetchLocationData() {
-		_locationDataStream.value = LocationModel.NoData
+		_locationDataStream.value = Location.NoData
 		delay(100.milliseconds)
 		when {
 			!isGpsHardwareAvailable() -> {
-				_locationDataStream.value = LocationModel.ErrorData.GPSUnsupported
+				_locationDataStream.value = Location.ErrorData.GPSUnsupported
 				return
 			}
 
 			!hasRequiredPermissions() -> {
-				_locationDataStream.value = LocationModel.ErrorData.PermissionRequired
+				_locationDataStream.value = Location.ErrorData.PermissionRequired
 				return
 			}
 
 			!isGpsEnabled() -> {
 				val settingsCheck = verifyGpsSettings()
-				if (settingsCheck is LocationModel.ErrorData.RequiresResolution ||
-					settingsCheck is LocationModel.ErrorData.Unknown
+				if (settingsCheck is Location.ErrorData.RequiresResolution ||
+					settingsCheck is Location.ErrorData.Unknown
 				) {
 					_locationDataStream.value = settingsCheck
 					return
@@ -62,14 +61,19 @@ class LocationRepositoryImpl @Inject constructor(
 
 		try {
 			_locationDataStream.value = when (val location = captureFreshCoordinates()) {
-				null -> LocationModel.ErrorData.Unknown("Failed to get coordinates")
-				else -> LocationModel.FullData(location.latitude, location.longitude)
+				null -> Location.ErrorData.Unknown("Failed to get coordinates")
+				else -> {
+					Location.FullData(
+						longitude = location.longitude,
+						latitude = location.latitude,
+					)
+				}
 			}
 		} catch (_: SecurityException) {
-			_locationDataStream.value = LocationModel.ErrorData.PermissionRequired
+			_locationDataStream.value = Location.ErrorData.PermissionRequired
 		} catch (e: Exception) {
 			_locationDataStream.value =
-				LocationModel.ErrorData.Unknown(e.localizedMessage ?: "Failed to get coordinates")
+				Location.ErrorData.Unknown(e.localizedMessage ?: "Failed to get coordinates")
 		}
 	}
 
@@ -89,8 +93,8 @@ class LocationRepositoryImpl @Inject constructor(
 		return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 	}
 
-	private suspend fun verifyGpsSettings(): LocationModel? {
-		var model: LocationModel? = null
+	private suspend fun verifyGpsSettings(): Location? {
+		var model: Location? = null
 		val locationRequest =
 			LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L).build()
 		val settingsRequest = LocationSettingsRequest.Builder()
@@ -103,9 +107,9 @@ class LocationRepositoryImpl @Inject constructor(
 			task.await()
 		} catch (exception: Exception) {
 			model = if (exception is ResolvableApiException) {
-				LocationModel.ErrorData.RequiresResolution(exception = exception)
+				Location.ErrorData.RequiresResolution(exception = exception)
 			} else {
-				LocationModel.ErrorData.Unknown(
+				Location.ErrorData.Unknown(
 					exception.localizedMessage ?: "Hardware configuration issue"
 				)
 			}
@@ -118,7 +122,7 @@ class LocationRepositoryImpl @Inject constructor(
 		val cancellationTokenSource = CancellationTokenSource()
 		return fusedLocationClient.getCurrentLocation(
 			Priority.PRIORITY_HIGH_ACCURACY,
-			cancellationTokenSource.token
+			cancellationTokenSource.token,
 		).await()
 	}
 }

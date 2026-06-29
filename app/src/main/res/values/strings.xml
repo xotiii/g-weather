@@ -1,3 +1,15 @@
 <resources>
 	<string name="app_name">GWeather</string>
+	<string name="user_greetings">Hello, %1s</string>
+	<string name="current_weather_weather_clear">Clear</string>
+	<string name="current_weather_weather_cloudy">Cloudy</string>
+	<string name="current_weather_weather_mist">Mist</string>
+	<string name="current_weather_weather_rain">Rain</string>
+	<string name="current_weather_weather_thunderstorm">Thunder Storm</string>
+	<string name="current_weather_weather_snow">Snow</string>
+	<string name="current_weather_temperature_celsius">%1s °C</string>
+	<string name="current_weather_network_error">There\'s a problem getting current weather</string>
+	<string name="current_weather_try_again">Try Again</string>
+	<string name="current_weather_request_permission">Request Location Permission</string>
+	<string name="current_weather_gps_unsupported">Your device doesn\'t support GPS.</string>
 </resources>
