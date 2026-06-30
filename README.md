@@ -13,7 +13,7 @@ Before running the application, you must provide your own OpenWeather API key.
     ```kotlin
     buildConfigField("String", "OPEN_WEATHER_API_KEY", "\"YOUR_API_KEY_HERE\"")
     ```
-3.  Replace `"YOUR_API_KEY_HERE"` with your valid API key.
+3.  Replace `YOUR_API_KEY_HERE` with your valid API key.
 
 ## 🏗 Architecture & Principles
 
