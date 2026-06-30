@@ -24,7 +24,6 @@ class UserRepositoryImpl @Inject constructor(
 		return if (userEntity != null && userEntity.password == password) {
 			User(
 				id = userEntity.id,
-				username = userEntity.username,
 				firstName = userEntity.firstName,
 			)
 		} else {

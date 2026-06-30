@@ -10,16 +10,21 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.dcchua.gweather.core.domain.usecase.Logout
 import com.dcchua.gweather.home.presentation.HomeScreen
 import com.dcchua.gweather.login.presentation.LoginScreen
 import com.dcchua.gweather.presentation.dto.NavigationObjects
 import com.dcchua.gweather.presentation.theme.GWeatherTheme
 import com.dcchua.gweather.register.presentation.RegisterScreen
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+	@Inject
+	lateinit var logout: Logout
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		enableEdgeToEdge()
@@ -28,6 +33,11 @@ class MainActivity : ComponentActivity() {
 				GWeatherApp()
 			}
 		}
+	}
+
+	override fun onDestroy() {
+		logout()
+		super.onDestroy()
 	}
 }
 
@@ -43,7 +53,11 @@ fun GWeatherApp() {
 		) {
 			composable<NavigationObjects.Login> {
 				LoginScreen(
-					onNavigateToLogin = { navController.navigate(NavigationObjects.Home) },
+					onNavigateToHome = {
+						navController.navigate(NavigationObjects.Home) {
+							popUpTo(NavigationObjects.Login) { inclusive = true }
+						}
+					},
 					onNavigateToRegister = { navController.navigate(NavigationObjects.Register) }
 				)
 			}

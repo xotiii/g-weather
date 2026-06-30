@@ -56,7 +56,7 @@ class UserRepositoryImplTest {
 
         val result = sut.loginUser(username, password)
 
-        val expectedUser = User(id = 1L, username = username, firstName = firstName)
+        val expectedUser = User(id = 1L, firstName = firstName)
         assertEquals(expectedUser, result)
     }
 
