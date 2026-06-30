@@ -1,5 +1,6 @@
 package com.dcchua.gweather.current.data.remote.transformer
 
+import com.dcchua.gweather.core.domain.model.Weather
 import com.dcchua.gweather.current.data.remote.api.dto.CurrentWeatherDto
 import com.dcchua.gweather.current.domain.model.CurrentWeather
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -20,23 +21,23 @@ class CurrentWeatherTransformerTest {
         val result = sut.toDomain(dto)
 
         assertTrue(result is CurrentWeather.FullData)
-        val data = result as CurrentWeather.FullData
+        val data = (result as CurrentWeather.FullData).weather
         assertEquals(284.2, data.temperature)
         assertEquals("Taguig", data.area.city)
         assertEquals("PH", data.area.country)
         assertEquals(1726636384L, data.sunrise)
         assertEquals(1726680975L, data.sunset)
-        assertEquals(CurrentWeather.FullData.Weather.Clear, data.weather)
+        assertEquals(Weather.WeatherCondition.Clear, data.weatherCondition)
     }
 
     @ParameterizedTest
     @MethodSource("weatherMappingProvider")
-    fun `toDomain should map weather id correctly`(weatherId: Int, expectedWeather: CurrentWeather.FullData.Weather) {
+    fun `toDomain should map weather id correctly`(weatherId: Int, expectedWeather: Weather.WeatherCondition) {
         val dto = createDto(weatherId = weatherId)
         val result = sut.toDomain(dto)
 
         assertTrue(result is CurrentWeather.FullData)
-        assertEquals(expectedWeather, (result as CurrentWeather.FullData).weather)
+        assertEquals(expectedWeather, (result as CurrentWeather.FullData).weather.weatherCondition)
     }
 
     @Test
@@ -50,20 +51,20 @@ class CurrentWeatherTransformerTest {
     companion object {
         @JvmStatic
         fun weatherMappingProvider(): Stream<Arguments> = Stream.of(
-            Arguments.of(200, CurrentWeather.FullData.Weather.ThunderStorm),
-            Arguments.of(299, CurrentWeather.FullData.Weather.ThunderStorm),
-            Arguments.of(300, CurrentWeather.FullData.Weather.Rain),
-            Arguments.of(399, CurrentWeather.FullData.Weather.Rain),
-            Arguments.of(500, CurrentWeather.FullData.Weather.Rain),
-            Arguments.of(599, CurrentWeather.FullData.Weather.Rain),
-            Arguments.of(600, CurrentWeather.FullData.Weather.Snow),
-            Arguments.of(699, CurrentWeather.FullData.Weather.Snow),
-            Arguments.of(701, CurrentWeather.FullData.Weather.Mist),
-            Arguments.of(799, CurrentWeather.FullData.Weather.Mist),
-            Arguments.of(800, CurrentWeather.FullData.Weather.Clear),
-            Arguments.of(801, CurrentWeather.FullData.Weather.Cloudy),
-            Arguments.of(804, CurrentWeather.FullData.Weather.Cloudy),
-            Arguments.of(900, CurrentWeather.FullData.Weather.Clear), // else case
+            Arguments.of(200, Weather.WeatherCondition.ThunderStorm),
+            Arguments.of(299, Weather.WeatherCondition.ThunderStorm),
+            Arguments.of(300, Weather.WeatherCondition.Rain),
+            Arguments.of(399, Weather.WeatherCondition.Rain),
+            Arguments.of(500, Weather.WeatherCondition.Rain),
+            Arguments.of(599, Weather.WeatherCondition.Rain),
+            Arguments.of(600, Weather.WeatherCondition.Snow),
+            Arguments.of(699, Weather.WeatherCondition.Snow),
+            Arguments.of(701, Weather.WeatherCondition.Mist),
+            Arguments.of(799, Weather.WeatherCondition.Mist),
+            Arguments.of(800, Weather.WeatherCondition.Clear),
+            Arguments.of(801, Weather.WeatherCondition.Cloudy),
+            Arguments.of(804, Weather.WeatherCondition.Cloudy),
+            Arguments.of(900, Weather.WeatherCondition.Clear), // else case
         )
     }
 

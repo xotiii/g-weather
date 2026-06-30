@@ -6,5 +6,5 @@ import javax.inject.Inject
 class GetUser @Inject constructor(
     private val sharedPreferencesUtil: SharedPreferencesUtil
 ) {
-    operator fun invoke(): String? = sharedPreferencesUtil.getUser()?.id?.toString()
+    operator fun invoke() = sharedPreferencesUtil.getUser()
 }

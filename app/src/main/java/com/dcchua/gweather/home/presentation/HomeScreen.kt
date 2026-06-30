@@ -1,8 +1,8 @@
 package com.dcchua.gweather.home.presentation
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,7 +41,7 @@ fun HomeScreen() {
 		}
 	) {
 		Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-			Box(modifier = Modifier.consumeWindowInsets(innerPadding)) {
+			Box(modifier = Modifier.padding(innerPadding)) {
 				when (currentDestination) {
 					HomeScreenDestination.HOME -> CurrentWeatherScreen()
 					HomeScreenDestination.HISTORY -> HistoryScreen()

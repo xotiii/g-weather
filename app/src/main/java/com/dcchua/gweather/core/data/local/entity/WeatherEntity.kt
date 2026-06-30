@@ -21,12 +21,15 @@ import androidx.room.PrimaryKey
 data class WeatherEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "userId") val userId: Long,
-    @ColumnInfo(name = "temperature") val temperature: String,
-    @ColumnInfo(name = "weatherCondition") val weatherCondition: String,
-    @ColumnInfo(name = "iconId") val iconId: Int,
+    @ColumnInfo(name = "temperature") val temperature: Double,
+    @ColumnInfo(name = "weatherCondition") val weatherCondition: WeatherCondition,
     @ColumnInfo(name = "city") val city: String,
     @ColumnInfo(name = "country") val country: String,
-    @ColumnInfo(name = "sunrise") val sunrise: String,
-    @ColumnInfo(name = "sunset") val sunset: String,
+    @ColumnInfo(name = "sunrise") val sunrise: Long,
+    @ColumnInfo(name = "sunset") val sunset: Long,
     @ColumnInfo(name = "timestamp") val timestamp: Long = System.currentTimeMillis()
-)
+) {
+    enum class WeatherCondition {
+        CLEAR, CLOUDS, RAIN, SNOW, THUNDERSTORM, MIST
+    }
+}

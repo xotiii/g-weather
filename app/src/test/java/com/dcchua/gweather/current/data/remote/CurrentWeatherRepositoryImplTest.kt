@@ -1,9 +1,12 @@
 package com.dcchua.gweather.current.data.remote
 
+import com.dcchua.gweather.core.domain.model.User
+import com.dcchua.gweather.core.domain.usecase.GetUser
 import com.dcchua.gweather.current.data.remote.api.WeatherApi
 import com.dcchua.gweather.current.data.remote.api.dto.CurrentWeatherDto
 import com.dcchua.gweather.current.data.remote.transformer.CurrentWeatherTransformer
 import com.dcchua.gweather.current.domain.model.CurrentWeather
+import com.dcchua.gweather.current.domain.usecase.SaveWeatherHistory
 import com.dcchua.gweather.testutils.testFlowCollection
 import dagger.Lazy
 import io.mockk.coEvery
@@ -41,6 +44,12 @@ class CurrentWeatherRepositoryImplTest {
 	@RelaxedMockK
 	private lateinit var transformer: CurrentWeatherTransformer
 
+	@RelaxedMockK
+	private lateinit var saveWeatherHistory: SaveWeatherHistory
+
+	@RelaxedMockK
+	private lateinit var getUser: GetUser
+
 	@BeforeEach
 	fun setup() {
 		Dispatchers.setMain(Dispatchers.Unconfined)
@@ -49,6 +58,8 @@ class CurrentWeatherRepositoryImplTest {
 		sut = CurrentWeatherRepositoryImpl(
 			retrofit = retrofitProvider,
 			transformer = transformer,
+			saveWeatherHistory = saveWeatherHistory,
+			getUser = getUser
 		)
 	}
 
@@ -68,9 +79,11 @@ class CurrentWeatherRepositoryImplTest {
 	}
 
 	@Test
-	fun `verify repository returns full data when API returns proper response`() = runTest {
+	fun `verify repository returns full data and saves history when API returns proper response and user is logged in`() = runTest {
 		val apiResponse = mockk<CurrentWeatherDto>()
 		val fullData = mockk<CurrentWeather.FullData>()
+		val user = User(id = 1L, firstName = "John")
+		
 		coEvery {
 			api.getCurrentWeather(
 				longitude = any(),
@@ -79,6 +92,8 @@ class CurrentWeatherRepositoryImplTest {
 			)
 		} returns apiResponse
 		every { transformer.toDomain(apiResponse) } returns fullData
+		every { getUser() } returns user
+		
 		val flowCollector = testFlowCollection(sut.currentWeatherDataStream)
 
 		sut.fetchWeather(longitude = 123.0, latitude = 123.0, apiKey = "123")
@@ -86,12 +101,39 @@ class CurrentWeatherRepositoryImplTest {
 
 		coVerify { api.getCurrentWeather(longitude = 123.0, latitude = 123.0, apiKey = "123") }
 		verify { transformer.toDomain(apiResponse) }
+		coVerify { saveWeatherHistory(userId = 1L, state = fullData) }
 		assertEquals(fullData, flowCollector.getLatestValue())
 		flowCollector.finishCollection()
 	}
 
 	@Test
-	fun `verify repository returns network error data when API throws exception`() = runTest {
+	fun `verify repository returns full data but does NOT save history when user is NOT logged in`() = runTest {
+		val apiResponse = mockk<CurrentWeatherDto>()
+		val fullData = mockk<CurrentWeather.FullData>()
+		
+		coEvery {
+			api.getCurrentWeather(
+				longitude = any(),
+				latitude = any(),
+				apiKey = any()
+			)
+		} returns apiResponse
+		every { transformer.toDomain(apiResponse) } returns fullData
+		every { getUser() } returns null
+		
+		val flowCollector = testFlowCollection(sut.currentWeatherDataStream)
+
+		sut.fetchWeather(longitude = 123.0, latitude = 123.0, apiKey = "123")
+		advanceUntilIdle()
+
+		coVerify { api.getCurrentWeather(longitude = 123.0, latitude = 123.0, apiKey = "123") }
+		coVerify(exactly = 0) { saveWeatherHistory(any(), any()) }
+		assertEquals(fullData, flowCollector.getLatestValue())
+		flowCollector.finishCollection()
+	}
+
+	@Test
+	fun `verify repository returns network error data when API throws exception and does NOT save history`() = runTest {
 		val apiResponse = mockk<CurrentWeatherDto>()
 		coEvery {
 			api.getCurrentWeather(
@@ -101,22 +143,25 @@ class CurrentWeatherRepositoryImplTest {
 			)
 		} throws mockk()
 		every { transformer.toDomain(apiResponse) } returns mockk()
+		
 		val flowCollector = testFlowCollection(sut.currentWeatherDataStream)
 
 		sut.fetchWeather(longitude = 123.0, latitude = 123.0, apiKey = "123")
 		advanceUntilIdle()
 
 		coVerify { api.getCurrentWeather(longitude = 123.0, latitude = 123.0, apiKey = "123") }
-		verify(exactly = 0) { transformer.toDomain(apiResponse) }
+		coVerify(exactly = 0) { saveWeatherHistory(any(), any()) }
 		assertEquals(CurrentWeather.ErrorData.NetworkError, flowCollector.getLatestValue())
 		flowCollector.finishCollection()
 	}
 
 	@Test
-	fun `verify repository returns proper data when API throws exception then user tries again and succeed`() =
+	fun `verify repository returns proper data and saves history when API throws exception then user tries again and succeed`() =
 		runTest {
 			val apiResponse = mockk<CurrentWeatherDto>()
 			val fullData = mockk<CurrentWeather.FullData>()
+			val user = User(id = 1L, firstName = "John")
+			
 			coEvery {
 				api.getCurrentWeather(
 					longitude = any(),
@@ -125,6 +170,8 @@ class CurrentWeatherRepositoryImplTest {
 				)
 			} throws mockk() andThen apiResponse
 			every { transformer.toDomain(apiResponse) } returns fullData
+			every { getUser() } returns user
+			
 			val flowCollector = testFlowCollection(sut.currentWeatherDataStream)
 
 			sut.fetchWeather(longitude = 123.0, latitude = 123.0, apiKey = "123")
@@ -134,6 +181,7 @@ class CurrentWeatherRepositoryImplTest {
 
 			coVerify { api.getCurrentWeather(longitude = 123.0, latitude = 123.0, apiKey = "123") }
 			verify(exactly = 1) { transformer.toDomain(apiResponse) }
+			coVerify(exactly = 1) { saveWeatherHistory(userId = 1L, state = fullData) }
 			assertEquals(
 				listOf(
 					CurrentWeather.NoData,

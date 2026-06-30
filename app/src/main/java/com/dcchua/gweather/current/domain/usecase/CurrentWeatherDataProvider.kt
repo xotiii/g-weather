@@ -29,6 +29,9 @@ class CurrentWeatherDataProvider @Inject constructor(
 						)
 						currentWeather
 					}
+					is CurrentWeather.FullData -> {
+						currentWeather
+					}
 					else -> currentWeather
 				}
 			}

@@ -1,6 +1,7 @@
 package com.dcchua.gweather.current.presentation
 
 import com.dcchua.gweather.R
+import com.dcchua.gweather.core.domain.model.Weather
 import com.dcchua.gweather.current.domain.model.CurrentWeather
 import com.dcchua.gweather.current.presentation.state.CurrentWeatherUiState
 import com.google.android.gms.common.api.ResolvableApiException
@@ -59,11 +60,13 @@ class CurrentWeatherUiStateFactoryTest {
     @Test
     fun `toUiState should map FullData correctly and round temperature`() {
         val fullData = CurrentWeather.FullData(
-            weather = CurrentWeather.FullData.Weather.Clear,
-            temperature = 25.46,
-            area = CurrentWeather.FullData.Area("Turin", "IT"),
-            sunrise = 1726636384,
-            sunset = 1726680975
+            weather = Weather.Current(
+                weatherCondition = Weather.WeatherCondition.Clear,
+                temperature = 25.46,
+                area = Weather.Area("Turin", "IT"),
+                sunrise = 1726636384,
+                sunset = 1726680975
+            )
         )
 
         val result = sut.toUiState(fullData, isDayTime = true)
@@ -83,16 +86,18 @@ class CurrentWeatherUiStateFactoryTest {
     @ParameterizedTest
     @MethodSource("weatherMappingProvider")
     fun `toUiState should map weather icons correctly based on time of day`(
-        weather: CurrentWeather.FullData.Weather,
+        weatherCondition: Weather.WeatherCondition,
         isDayTime: Boolean,
         expectedIcon: Int
     ) {
         val fullData = CurrentWeather.FullData(
-            weather = weather,
-            temperature = 20.0,
-            area = CurrentWeather.FullData.Area("City", "Country"),
-            sunrise = 0,
-            sunset = 0
+            weather = Weather.Current(
+                weatherCondition = weatherCondition,
+                temperature = 20.0,
+                area = Weather.Area("City", "Country"),
+                sunrise = 0,
+                sunset = 0
+            )
         )
 
         val result = sut.toUiState(fullData, isDayTime)
@@ -104,18 +109,18 @@ class CurrentWeatherUiStateFactoryTest {
     companion object {
         @JvmStatic
         fun weatherMappingProvider(): Stream<Arguments> = Stream.of(
-            Arguments.of(CurrentWeather.FullData.Weather.Clear, true, R.drawable.clear_sun),
-            Arguments.of(CurrentWeather.FullData.Weather.Clear, false, R.drawable.clear_moon),
-            Arguments.of(CurrentWeather.FullData.Weather.Cloudy, true, R.drawable.cloudy_sun),
-            Arguments.of(CurrentWeather.FullData.Weather.Cloudy, false, R.drawable.cloudy_moon),
-            Arguments.of(CurrentWeather.FullData.Weather.Mist, true, R.drawable.cloudy_sun),
-            Arguments.of(CurrentWeather.FullData.Weather.Mist, false, R.drawable.cloudy_moon),
-            Arguments.of(CurrentWeather.FullData.Weather.Rain, true, R.drawable.rain),
-            Arguments.of(CurrentWeather.FullData.Weather.Rain, false, R.drawable.rain),
-            Arguments.of(CurrentWeather.FullData.Weather.Snow, true, R.drawable.snow),
-            Arguments.of(CurrentWeather.FullData.Weather.Snow, false, R.drawable.snow),
-            Arguments.of(CurrentWeather.FullData.Weather.ThunderStorm, true, R.drawable.storm),
-            Arguments.of(CurrentWeather.FullData.Weather.ThunderStorm, false, R.drawable.storm)
+            Arguments.of(Weather.WeatherCondition.Clear, true, R.drawable.clear_sun),
+            Arguments.of(Weather.WeatherCondition.Clear, false, R.drawable.clear_moon),
+            Arguments.of(Weather.WeatherCondition.Cloudy, true, R.drawable.cloudy_sun),
+            Arguments.of(Weather.WeatherCondition.Cloudy, false, R.drawable.cloudy_moon),
+            Arguments.of(Weather.WeatherCondition.Mist, true, R.drawable.cloudy_sun),
+            Arguments.of(Weather.WeatherCondition.Mist, false, R.drawable.cloudy_moon),
+            Arguments.of(Weather.WeatherCondition.Rain, true, R.drawable.rain),
+            Arguments.of(Weather.WeatherCondition.Rain, false, R.drawable.rain),
+            Arguments.of(Weather.WeatherCondition.Snow, true, R.drawable.snow),
+            Arguments.of(Weather.WeatherCondition.Snow, false, R.drawable.snow),
+            Arguments.of(Weather.WeatherCondition.ThunderStorm, true, R.drawable.storm),
+            Arguments.of(Weather.WeatherCondition.ThunderStorm, false, R.drawable.storm)
         )
     }
 }

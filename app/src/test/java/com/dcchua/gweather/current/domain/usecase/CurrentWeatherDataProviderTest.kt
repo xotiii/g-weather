@@ -53,7 +53,7 @@ class CurrentWeatherDataProviderTest {
         sut = CurrentWeatherDataProvider(
             currentWeatherRepository,
             locationRepository,
-            getApiKey
+            getApiKey,
         )
     }
 

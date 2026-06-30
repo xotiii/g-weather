@@ -18,6 +18,17 @@ fun toLocalTime(unixUtcSeconds: Long): String {
 	}
 }
 
+fun toLocalDate(timestampMillis: Long): String {
+	try {
+		val date = Date(timestampMillis)
+		val sdf = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+		sdf.timeZone = TimeZone.getDefault()
+		return sdf.format(date)
+	} catch (_: Exception) {
+		return "Invalid Date"
+	}
+}
+
 fun getDurationToNextHour(now: LocalDateTime): Duration {
 	val nextHour = now.plusHours(1)
 		.withMinute(0)
