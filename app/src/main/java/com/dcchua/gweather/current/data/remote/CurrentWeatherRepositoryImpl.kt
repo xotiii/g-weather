@@ -4,7 +4,7 @@ import com.dcchua.gweather.current.data.remote.api.WeatherApi
 import com.dcchua.gweather.current.data.remote.transformer.CurrentWeatherTransformer
 import com.dcchua.gweather.current.domain.CurrentWeatherRepository
 import com.dcchua.gweather.current.domain.model.CurrentWeather
-import com.dcchua.gweather.util.coroutines.coRunCatching
+import com.dcchua.gweather.core.util.coroutines.coRunCatching
 import dagger.Lazy
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

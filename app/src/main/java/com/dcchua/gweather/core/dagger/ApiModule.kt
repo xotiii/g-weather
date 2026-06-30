@@ -1,4 +1,4 @@
-package com.dcchua.gweather.di
+package com.dcchua.gweather.core.dagger
 
 import com.dcchua.gweather.current.data.remote.api.WeatherApi
 import dagger.Module

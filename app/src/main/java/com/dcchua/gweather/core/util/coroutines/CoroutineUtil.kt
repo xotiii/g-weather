@@ -1,4 +1,4 @@
-package com.dcchua.gweather.util.coroutines
+package com.dcchua.gweather.core.util.coroutines
 
 import kotlinx.coroutines.CancellationException
 

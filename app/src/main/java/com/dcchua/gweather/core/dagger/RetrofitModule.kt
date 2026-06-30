@@ -1,4 +1,4 @@
-package com.dcchua.gweather.di
+package com.dcchua.gweather.core.dagger
 
 import dagger.Module
 import dagger.Provides

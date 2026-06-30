@@ -3,7 +3,7 @@ package com.dcchua.gweather.current.presentation
 import com.dcchua.gweather.R
 import com.dcchua.gweather.current.domain.model.CurrentWeather
 import com.dcchua.gweather.current.presentation.state.CurrentWeatherUiState
-import com.dcchua.gweather.util.time.toLocalTime
+import com.dcchua.gweather.core.util.time.toLocalTime
 import java.math.RoundingMode
 import javax.inject.Inject
 

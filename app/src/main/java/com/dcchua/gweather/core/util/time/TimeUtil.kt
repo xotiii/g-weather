@@ -1,4 +1,4 @@
-package com.dcchua.gweather.util.time
+package com.dcchua.gweather.core.util.time
 
 import java.text.SimpleDateFormat
 import java.time.Duration

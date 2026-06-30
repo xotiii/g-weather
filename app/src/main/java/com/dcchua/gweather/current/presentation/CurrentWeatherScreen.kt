@@ -50,11 +50,7 @@ fun CurrentWeatherScreen(
 		darkTheme = !isDayTime,
 	) {
 		Scaffold { innerPaddings ->
-			Box(
-				modifier =
-					Modifier
-						.consumeWindowInsets(innerPaddings)
-			) {
+			Box(modifier = Modifier.consumeWindowInsets(innerPaddings)) {
 				CurrentWeatherContent(
 					state = uiState,
 					isDayTime = isDayTime,

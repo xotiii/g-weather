@@ -3,7 +3,7 @@ package com.dcchua.gweather.current.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dcchua.gweather.current.domain.usecase.CurrentWeatherDataProvider
-import com.dcchua.gweather.util.time.getDurationToNextHour
+import com.dcchua.gweather.core.util.time.getDurationToNextHour
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
