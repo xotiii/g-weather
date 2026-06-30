@@ -25,8 +25,6 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -56,7 +54,7 @@ class LocationRepositoryImplTest {
 	fun setup() {
 		mockkStatic(LocationServices::class)
 		mockkStatic(ContextCompat::class)
-		Dispatchers.setMain(StandardTestDispatcher(TestCoroutineScheduler()))
+		Dispatchers.setMain(Dispatchers.Unconfined)
 		every { context.getSystemService(Context.LOCATION_SERVICE) } returns locationManager
 		every { LocationServices.getSettingsClient(context) } returns settingsClient
 		every { LocationServices.getFusedLocationProviderClient(context) } returns fusedLocationClient

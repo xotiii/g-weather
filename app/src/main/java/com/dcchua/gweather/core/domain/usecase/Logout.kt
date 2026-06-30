@@ -7,6 +7,6 @@ class Logout @Inject constructor(
     private val sharedPreferencesUtil: SharedPreferencesUtil
 ) {
     operator fun invoke() {
-        sharedPreferencesUtil.clearUserId()
+        sharedPreferencesUtil.clearUser()
     }
 }

@@ -11,10 +11,14 @@ import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -41,6 +45,7 @@ class CurrentWeatherDataProviderTest {
 
     @BeforeEach
     fun setup() {
+        Dispatchers.setMain(Dispatchers.Unconfined)
         every { currentWeatherRepository.currentWeatherDataStream } returns currentWeatherDataStream
         every { locationRepository.locationDataStream } returns locationDataStream
         every { getApiKey() } returns "test_api_key"
@@ -50,6 +55,11 @@ class CurrentWeatherDataProviderTest {
             locationRepository,
             getApiKey
         )
+    }
+
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test

@@ -11,7 +11,7 @@ class LoginUser @Inject constructor(
     suspend operator fun invoke(username: String, password: String): Boolean {
         val user = userRepository.loginUser(username, password)
         return if (user != null) {
-            sharedPreferencesUtil.saveUserId(user.id.toString())
+            sharedPreferencesUtil.saveUser(user)
             true
         } else {
             false

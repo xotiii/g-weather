@@ -15,8 +15,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -45,7 +43,7 @@ class CurrentWeatherRepositoryImplTest {
 
 	@BeforeEach
 	fun setup() {
-		Dispatchers.setMain(StandardTestDispatcher(TestCoroutineScheduler()))
+		Dispatchers.setMain(Dispatchers.Unconfined)
 		val retrofitProvider = Lazy { retrofit }
 		every { retrofit.create(any<Class<WeatherApi>>()) } returns api
 		sut = CurrentWeatherRepositoryImpl(
